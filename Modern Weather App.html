@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<!-- saved from url=(0022)http://127.0.0.1:5000/ -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modern Weather App</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background:
+                linear-gradient(rgba(0, 0, 0, 0.4),
+                    rgba(0, 0, 0, 0.5)),
+                url("https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=2070&auto=format&fit=crop");
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 900px;
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(12px);
+            border-radius: 25px;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .left {
+            padding: 40px;
+            color: white;
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        .app-title {
+            font-size: 32px;
+            margin-bottom: 30px;
+            font-weight: bold;
+        }
+
+        .search-box {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 35px;
+        }
+
+        .search-box input {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 12px;
+            outline: none;
+            font-size: 16px;
+        }
+
+        .search-box button {
+            width: 60px;
+            border: none;
+            border-radius: 12px;
+            background: #00b4ff;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .search-box button:hover {
+            background: #008cff;
+            transform: scale(1.05);
+        }
+
+        .weather-main {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .weather-main img {
+            width: 150px;
+        }
+
+        .temp {
+            font-size: 70px;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        .city {
+            font-size: 35px;
+            margin-top: 10px;
+        }
+
+        .description {
+            font-size: 20px;
+            margin-top: 10px;
+            text-transform: capitalize;
+        }
+
+        .right {
+            background: rgba(255, 255, 255, 0.08);
+            padding: 40px;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .detail-card {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            padding: 20px;
+            margin-bottom: 20px;
+            background: rgba(255, 255, 255, 0.12);
+            border-radius: 18px;
+            transition: 0.3s;
+        }
+
+        .detail-card:hover {
+            transform: translateX(5px);
+            background: rgba(255, 255, 255, 0.18);
+        }
+
+        .detail-card i {
+            font-size: 30px;
+            color: #00b4ff;
+        }
+
+        .detail-info h3 {
+            font-size: 26px;
+            margin-bottom: 5px;
+        }
+
+        .detail-info p {
+            color: #ddd;
+        }
+
+        .loading {
+            display: none;
+            margin-top: 15px;
+            font-size: 18px;
+        }
+
+        @media(max-width:768px) {
+
+            .container {
+                grid-template-columns: 1fr;
+            }
+
+            .left,
+            .right {
+                padding: 25px;
+            }
+
+            .temp {
+                font-size: 55px;
+            }
+
+            .city {
+                font-size: 28px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+
+        <!-- LEFT SIDE -->
+
+        <div class="left">
+
+            <div class="app-title">
+                <i class="fa-solid fa-cloud-sun"></i>
+                Weather Dashboard
+            </div>
+
+            <div class="search-box">
+
+                <input type="text" id="city" placeholder="Search city...">
+
+                <button onclick="getWeather()">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                </button>
+
+            </div>
+
+            <div class="loading" id="loading" style="display: none;">
+                Loading weather...
+            </div>
+
+            <div class="weather-main">
+
+                <img id="weatherIcon" src="https://cdn-icons-png.flaticon.com/512/869/869869.png">
+
+                <div class="temp" id="temp">19°C</div>
+
+                <div class="city" id="cityName">California, undefined</div>
+
+                <div class="description" id="description">clear sky</div>
+
+            </div>
+
+        </div>
+
+        <!-- RIGHT SIDE -->
+
+        <div class="right">
+
+            <div class="detail-card">
+                <i class="fa-solid fa-droplet"></i>
+
+                <div class="detail-info">
+                    <h3 id="humidity">87%</h3>
+                    <p>Humidity</p>
+                </div>
+            </div>
+
+            <div class="detail-card">
+                <i class="fa-solid fa-wind"></i>
+
+                <div class="detail-info">
+                    <h3 id="wind">0 km/h</h3>
+                    <p>Wind Speed</p>
+                </div>
+            </div>
+
+            <div class="detail-card">
+                <i class="fa-solid fa-temperature-high"></i>
+
+                <div class="detail-info">
+                    <h3 id="pressure">1019</h3>
+                    <p>Pressure</p>
+                </div>
+            </div>
+
+            <div class="detail-card">
+                <i class="fa-solid fa-cloud"></i>
+
+                <div class="detail-info">
+                    <h3 id="condition">Clear</h3>
+                    <p>Condition</p>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <script>
+
+        const cityInput =
+            document.getElementById("city");
+
+        cityInput.addEventListener("keypress",
+            function (event) {
+
+                if (event.key === "Enter") {
+                    getWeather();
+                }
+
+            });
+
+        async function getWeather() {
+
+            const city =
+                cityInput.value.trim();
+
+            if (city === "") {
+                alert("Please enter city name");
+                return;
+            }
+
+            document.getElementById("loading")
+                .style.display = "block";
+
+            try {
+
+                const response =
+                    await fetch(`/weather?city=${city}`);
+
+                const data =
+                    await response.json();
+
+                document.getElementById("loading")
+                    .style.display = "none";
+
+                if (data.error) {
+                    alert(data.error);
+                    return;
+                }
+
+                document.getElementById("temp")
+                    .innerHTML =
+                    `${Math.round(data.temperature)}°C`;
+
+                document.getElementById("cityName")
+                    .innerHTML =
+                    `${data.city}, ${data.country}`;
+
+                document.getElementById("description")
+                    .innerHTML =
+                    data.description;
+
+                document.getElementById("humidity")
+                    .innerHTML =
+                    `${data.humidity}%`;
+
+                document.getElementById("wind")
+                    .innerHTML =
+                    `${data.wind_speed} km/h`;
+
+                document.getElementById("pressure")
+                    .innerHTML =
+                    data.pressure;
+
+                document.getElementById("condition")
+                    .innerHTML =
+                    data.main_weather;
+
+                const weather =
+                    data.main_weather.toLowerCase();
+
+                let imageUrl = "";
+
+                if (weather.includes("cloud")) {
+
+                    imageUrl =
+                        "https://cdn-icons-png.flaticon.com/512/414/414825.png";
+                }
+
+                else if (weather.includes("rain")) {
+
+                    imageUrl =
+                        "https://cdn-icons-png.flaticon.com/512/1163/1163657.png";
+                }
+
+                else if (weather.includes("clear")) {
+
+                    imageUrl =
+                        "https://cdn-icons-png.flaticon.com/512/869/869869.png";
+                }
+
+                else if (weather.includes("snow")) {
+
+                    imageUrl =
+                        "https://cdn-icons-png.flaticon.com/512/642/642102.png";
+                }
+
+                else {
+
+                    imageUrl =
+                        "https://cdn-icons-png.flaticon.com/512/1779/1779940.png";
+                }
+
+                document.getElementById("weatherIcon")
+                    .src = imageUrl;
+
+            }
+
+            catch (error) {
+
+                document.getElementById("loading")
+                    .style.display = "none";
+
+                alert("Something went wrong");
+
+            }
+
+        }
+
+    </script>
+
+
+
+</body></html>
